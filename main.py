@@ -2,8 +2,8 @@ import streamlit as st
 import requests
 
 # JSONBin.io API設定
-API_KEY = "YOUR_JSONBIN_API_KEY"  # JSONBin.ioのAPIキー
-BIN_ID = "YOUR_BIN_ID"  # 作成したBinのID
+API_KEY = "$2a$10$wkVzPCcsW64wR96r26OsI.HDd3ijLveJn6sxJoSjfzByIRyODPCHq"  # JSONBin.ioのAPIキー
+BIN_ID = "678e24e2ad19ca34f8f14fa2"  # 作成したBinのID
 BASE_URL = f"https://api.jsonbin.io/v3/b/{BIN_ID}"
 
 HEADERS = {
