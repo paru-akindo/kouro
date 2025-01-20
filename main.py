@@ -1,23 +1,37 @@
 import streamlit as st
 import pandas as pd
-import json
-import os
+import requests
 
-# ファイルパス
-DATA_FILE = "reservations.json"
+# JSONBin.io API設定
+API_KEY = "$2a$10$Mh9g/WmT/cYbMnObdrhffuXL7EDOEYsYuhYuwLK3oUzb0rmjb/Gc6"  # JSONBin.ioのAPIキー
+BIN_ID = "678e22331ea5ae6cf0290088"  # 作成したBinのID
+BASE_URL = f"https://api.jsonbin.io/v3/b/{BIN_ID}"
+
+HEADERS = {
+    "Content-Type": "application/json",
+    "X-Master-Key": API_KEY
+}
+
+# 初期データ
+def initialize_data():
+    return {i: None for i in range(1, 21)}
 
 # データをロード
 def load_data():
-    if os.path.exists(DATA_FILE):
-        with open(DATA_FILE, "r") as f:
-            return json.load(f)
+    response = requests.get(BASE_URL, headers=HEADERS)
+    if response.status_code == 200:
+        return response.json()["record"]
     else:
-        return {i: None for i in range(1, 21)}
+        st.error("データの読み込みに失敗しました。")
+        return initialize_data()
 
 # データを保存
 def save_data(data):
-    with open(DATA_FILE, "w") as f:
-        json.dump(data, f)
+    response = requests.put(BASE_URL, headers=HEADERS, json=data)
+    if response.status_code == 200:
+        st.success("データを保存しました。")
+    else:
+        st.error("データの保存に失敗しました。")
 
 # 初期設定
 if "reservations" not in st.session_state:
@@ -36,8 +50,8 @@ st.title("予約ページ")
 # データをテーブル形式で表示
 data = []
 for key, location in locations.items():
-    current_reservation = st.session_state["reservations"].get(key)  # 修正: 辞書キーの扱いを統一
-    data.append([key, location, current_reservation if current_reservation else "なし"])
+    current_reservation = st.session_state["reservations"].get(str(key), "なし")
+    data.append([key, location, current_reservation])
 
 df = pd.DataFrame(data, columns=["ID", "場所", "現在の予約者"])
 st.table(df)
@@ -54,16 +68,16 @@ with col2:
 with col3:
     if st.button("決定"):
         if name_input:
-            st.session_state["reservations"][selected_id] = name_input
-            save_data(st.session_state["reservations"])  # 保存
+            st.session_state["reservations"][str(selected_id)] = name_input
+            save_data(st.session_state["reservations"])  # JSONBin.ioに保存
             st.success(f"{locations[selected_id]} の予約者を {name_input} に設定しました。")
         else:
             st.warning("名前を入力してください。")
 
     if st.button("削除"):
-        if st.session_state["reservations"].get(selected_id):
-            st.session_state["reservations"][selected_id] = None
-            save_data(st.session_state["reservations"])  # 保存
+        if st.session_state["reservations"].get(str(selected_id)):
+            st.session_state["reservations"][str(selected_id)] = None
+            save_data(st.session_state["reservations"])  # JSONBin.ioに保存
             st.success(f"{locations[selected_id]} の予約者を削除しました。")
         else:
             st.warning(f"{locations[selected_id]} は既に予約されていません。")
