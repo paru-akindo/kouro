@@ -83,3 +83,15 @@ if current_reservation:
 else:
     st.write("予約者はいません。")
 
+# すべての場所の予約状況を表形式で表示
+st.subheader("すべての場所の予約状況")
+table_data = []
+
+for key in locations:
+    location_name = locations[key]
+    current_reservation = reservations[str(key)]
+    reservation_list = ", ".join(current_reservation) if current_reservation else "予約者はいません"
+    table_data.append([location_name, reservation_list])
+
+# 表形式で表示
+st.table(table_data)
