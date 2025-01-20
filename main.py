@@ -29,8 +29,6 @@ def load_data():
 # データを保存
 def save_data(data):
     # データをJSON形式でダンプして確認
-    st.write("Sending Data:", json.dumps(data, indent=2))
-    
     response = requests.put(BASE_URL, headers=HEADERS, json=data)
     
     if response.status_code == 200:
