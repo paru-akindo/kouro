@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import requests
+import json
 
 # JSONBin.io API設定
 API_KEY = "$2a$10$Mh9g/WmT/cYbMnObdrhffuXL7EDOEYsYuhYuwLK3oUzb0rmjb/Gc6"  # JSONBin.ioのAPIキー
