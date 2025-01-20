@@ -48,7 +48,7 @@ reservations = load_data()
 
 # 各場所の予約フォーム
 for key in reservations:
-    location_name = locations[key]  # 場所の名前を取得
+    location_name = locations[int(key)]  # keyを整数に変換して場所名を取得
     st.subheader(f"場所 {key} - {location_name}")  # 場所名を表示
     current_reservation = reservations[key]
     
