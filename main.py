@@ -95,3 +95,9 @@ for key in locations:
 
 # 表形式で表示
 st.table(table_data)
+
+# すべての予約をリセットするボタン
+if st.button("すべての予約をリセット"):
+    reservations = initialize_data()  # 初期化
+    save_data(reservations)
+    st.success("すべての予約をリセットしました。")
