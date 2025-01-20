@@ -4,7 +4,7 @@ import requests
 import json
 
 # JSONBin.io API設定
-API_KEY = "$2a$10$Mh9g/WmT/cYbMnObdrhffuXL7EDOEYsYuhYuwLK3oUzb0rmjb/Gc6"  # JSONBin.ioのAPIキー
+API_KEY = "$2a$10$wkVzPCcsW64wR96r26OsI.HDd3ijLveJn6sxJoSjfzByIRyODPCHq"  # JSONBin.ioのAPIキー
 BIN_ID = "678e24e2ad19ca34f8f14fa2"  # 作成したBinのID
 BASE_URL = f"https://api.jsonbin.io/v3/b/{BIN_ID}"
 
