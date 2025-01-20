@@ -1,13 +1,27 @@
 import streamlit as st
+import pandas as pd
+import json
+import os
+
+# ファイルパス
+DATA_FILE = "reservations.json"
+
+# データをロード
+def load_data():
+    if os.path.exists(DATA_FILE):
+        with open(DATA_FILE, "r") as f:
+            return json.load(f)
+    else:
+        return {i: None for i in range(1, 21)}
+
+# データを保存
+def save_data(data):
+    with open(DATA_FILE, "w") as f:
+        json.dump(data, f)
 
 # 初期設定
 if "reservations" not in st.session_state:
-    st.session_state["reservations"] = {
-        1: None, 2: None, 3: None, 4: None, 5: None, 
-        6: None, 7: None, 8: None, 9: None, 10: None,
-        11: None, 12: None, 13: None, 14: None, 15: None, 
-        16: None, 17: None, 18: None, 19: None, 20: None
-    }
+    st.session_state["reservations"] = load_data()
 
 # 場所リスト
 locations = {
@@ -19,32 +33,37 @@ locations = {
 
 st.title("予約ページ")
 
-# 各場所の予約管理
+# データをテーブル形式で表示
+data = []
 for key, location in locations.items():
-    col1, col2, col3, col4 = st.columns([2, 3, 3, 2])
-    
-    # 場所名表示
-    col1.write(f"{key}. {location}")
-    
-    # 名前入力欄
-    name_input = col2.text_input(f"名前を入力 ({location})", key=f"input_{key}")
-    
-    # 現在の予約者表示
-    current_reservation = st.session_state["reservations"][key]
-    col3.write(f"現在の予約者: {current_reservation if current_reservation else 'なし'}")
-    
-    # 決定ボタン
-    if col4.button("決定", key=f"decide_{key}"):
+    current_reservation = st.session_state["reservations"][str(key)]
+    data.append([key, location, current_reservation if current_reservation else "なし"])
+
+df = pd.DataFrame(data, columns=["ID", "場所", "現在の予約者"])
+st.table(df)
+
+# 入力欄と操作ボタン
+col1, col2, col3 = st.columns([2, 2, 2])
+
+with col1:
+    selected_id = st.selectbox("場所を選択", options=list(locations.keys()), format_func=lambda x: f"{x}. {locations[x]}")
+
+with col2:
+    name_input = st.text_input("名前を入力", key="name_input")
+
+with col3:
+    if st.button("決定"):
         if name_input:
-            st.session_state["reservations"][key] = name_input
-            st.success(f"{location} の予約者を {name_input} に設定しました。")
+            st.session_state["reservations"][str(selected_id)] = name_input
+            save_data(st.session_state["reservations"])  # 保存
+            st.success(f"{locations[selected_id]} の予約者を {name_input} に設定しました。")
         else:
             st.warning("名前を入力してください。")
-    
-    # 削除ボタン
-    if col4.button("削除", key=f"delete_{key}"):
-        if st.session_state["reservations"][key]:
-            st.session_state["reservations"][key] = None
-            st.success(f"{location} の予約者を削除しました。")
+
+    if st.button("削除"):
+        if st.session_state["reservations"][str(selected_id)]:
+            st.session_state["reservations"][str(selected_id)] = None
+            save_data(st.session_state["reservations"])  # 保存
+            st.success(f"{locations[selected_id]} の予約者を削除しました。")
         else:
-            st.warning(f"{location} は既に予約されていません。")
+            st.warning(f"{locations[selected_id]} は既に予約されていません。")
