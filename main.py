@@ -11,6 +11,14 @@ HEADERS = {
     "X-Master-Key": API_KEY
 }
 
+# 場所の情報
+locations = {
+    1: "博多", 2: "開京", 3: "明州", 4: "泉州", 5: "広州",
+    6: "淡水", 7: "安南", 8: "ボニ", 9: "タイ", 10: "真臘",
+    11: "スル", 12: "三仏斉", 13: "ジョホール", 14: "大光国", 15: "天竺",
+    16: "セイロン", 17: "ペルシャ", 18: "大食国", 19: "ミスル", 20: "末羅国"
+}
+
 # 初期データの設定（空のリストを各場所に設定）
 def initialize_data():
     return {str(i): [] for i in range(1, 21)}  # 1から20の場所に空のリストを設定
@@ -33,25 +41,26 @@ def load_data():
         return initialize_data()
 
 # アプリのタイトル
-st.title("目的地")
+st.title("予約システム")
 
 # 予約データの読み込み
 reservations = load_data()
 
 # 各場所の予約フォーム
 for key in reservations:
-    st.subheader(f"場所 {key}")
+    location_name = locations[key]  # 場所の名前を取得
+    st.subheader(f"場所 {key} - {location_name}")  # 場所名を表示
     current_reservation = reservations[key]
     
     # 予約者追加用の入力欄
-    new_reservation = st.text_input(f"場所 {key} に予約する名前を入力", key=f"input_{key}")
+    new_reservation = st.text_input(f"場所 {location_name} に予約する名前を入力", key=f"input_{key}")
     
     # 予約者追加ボタン
-    if st.button(f"予約する - 場所 {key}", key=f"book_{key}"):
+    if st.button(f"予約する - 場所 {location_name}", key=f"book_{key}"):
         if new_reservation:
             current_reservation.append(new_reservation)
             save_data(reservations)
-            st.success(f"{new_reservation} さんが場所 {key} に予約されました。")
+            st.success(f"{new_reservation} さんが場所 {location_name} に予約されました。")
         else:
             st.warning("名前を入力してください。")
     
@@ -59,10 +68,10 @@ for key in reservations:
     if current_reservation:
         st.write("現在の予約者:", ", ".join(current_reservation))
         
-        # 予約者削除用のボタン
-        remove_reservation = st.selectbox(f"削除する予約者を選んでください (場所 {key})", options=[""] + current_reservation, key=f"remove_{key}")
+        # 予約者削除用のセレクトボックス
+        remove_reservation = st.selectbox(f"削除する予約者を選んでください (場所 {location_name})", options=[""] + current_reservation, key=f"remove_{key}")
         if remove_reservation:
-            if st.button(f"削除する - {remove_reservation} (場所 {key})", key=f"remove_button_{key}"):
+            if st.button(f"削除する - {remove_reservation} (場所 {location_name})", key=f"remove_button_{key}"):
                 current_reservation.remove(remove_reservation)
                 save_data(reservations)
-                st.success(f"{remove_reservation} さんが場所 {key} の予約から削除されました。")
+                st.success(f"{remove_reservation} さんが場所 {location_name} の予約から削除されました。")
