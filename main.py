@@ -41,7 +41,7 @@ def load_data():
         return initialize_data()
 
 # アプリのタイトル
-st.title("予約システム")
+st.title("最後どこ行く？")
 
 # 予約データの読み込み
 reservations = load_data()
