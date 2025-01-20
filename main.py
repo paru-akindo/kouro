@@ -32,8 +32,6 @@ def save_data(data):
     st.write("Sending Data:", json.dumps(data, indent=2))
     
     response = requests.put(BASE_URL, headers=HEADERS, json=data)
-    st.write(f"Response Status Code: {response.status_code}")
-    st.write(f"Response Text: {response.text}")
     
     if response.status_code == 200:
         st.success("データを保存しました。")
