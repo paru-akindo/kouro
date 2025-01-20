@@ -36,7 +36,7 @@ st.title("予約ページ")
 # データをテーブル形式で表示
 data = []
 for key, location in locations.items():
-    current_reservation = st.session_state["reservations"][str(key)]
+    current_reservation = st.session_state["reservations"].get(key)  # 修正: 辞書キーの扱いを統一
     data.append([key, location, current_reservation if current_reservation else "なし"])
 
 df = pd.DataFrame(data, columns=["ID", "場所", "現在の予約者"])
@@ -54,15 +54,15 @@ with col2:
 with col3:
     if st.button("決定"):
         if name_input:
-            st.session_state["reservations"][str(selected_id)] = name_input
+            st.session_state["reservations"][selected_id] = name_input
             save_data(st.session_state["reservations"])  # 保存
             st.success(f"{locations[selected_id]} の予約者を {name_input} に設定しました。")
         else:
             st.warning("名前を入力してください。")
 
     if st.button("削除"):
-        if st.session_state["reservations"][str(selected_id)]:
-            st.session_state["reservations"][str(selected_id)] = None
+        if st.session_state["reservations"].get(selected_id):
+            st.session_state["reservations"][selected_id] = None
             save_data(st.session_state["reservations"])  # 保存
             st.success(f"{locations[selected_id]} の予約者を削除しました。")
         else:
