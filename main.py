@@ -27,12 +27,17 @@ def load_data():
 
 # データを保存
 def save_data(data):
+    # データをJSON形式でダンプして確認
+    st.write("Sending Data:", json.dumps(data, indent=2))
+    
     response = requests.put(BASE_URL, headers=HEADERS, json=data)
+    st.write(f"Response Status Code: {response.status_code}")
+    st.write(f"Response Text: {response.text}")
+    
     if response.status_code == 200:
         st.success("データを保存しました。")
     else:
         st.error("データの保存に失敗しました。")
-
 # 初期設定
 if "reservations" not in st.session_state:
     st.session_state["reservations"] = load_data()
