@@ -87,6 +87,10 @@ table_data = []
 for key in locations:
     location_name = locations[key]
     current_reservation = reservations[str(key)]
+    # 「絽呂」「ろろ」「ロロ」を「女神様」に変換して表示
+    display_reservations = [
+        "女神様" if name in {"絽呂", "ろろ", "ロロ"} else name for name in current_reservation
+    ]
     reservation_list = ", ".join(current_reservation) if current_reservation else "予約者はいません"
     table_data.append([location_name, reservation_list])
 
