@@ -43,31 +43,34 @@ def load_data():
 # アプリのタイトル
 st.title("最後どこ行く？")
 
-# 予約データの読み込み
-reservations = load_data()
-
 # 場所の選択
 location_choice = st.selectbox("予約する場所を選択してください", options=[locations[i] for i in range(1, 21)])
 
 # 選択された場所のキーを取得
 selected_location_key = [key for key, name in locations.items() if name == location_choice][0]
 
-# 現在の予約者リストを取得
-current_reservation = reservations[str(selected_location_key)]
-
 # 予約者追加の入力欄
 new_reservation = st.text_input(f"場所 {location_choice} に予約する名前を入力")
 
 # 予約者追加ボタン
 if st.button(f"予約する - 場所 {location_choice}"):
+    # 最新の予約データを再取得
+    reservations = load_data()
+    current_reservation = reservations[str(selected_location_key)]
+
     if new_reservation:
-        current_reservation.append(new_reservation)
-        save_data(reservations)
-        st.success(f"{new_reservation} さんが場所 {location_choice} に予約されました。")
+        if new_reservation in current_reservation:
+            st.warning(f"{new_reservation} さんはすでに場所 {location_choice} に予約済みです。")
+        else:
+            current_reservation.append(new_reservation)
+            save_data(reservations)
+            st.success(f"{new_reservation} さんが場所 {location_choice} に予約されました。")
     else:
         st.warning("名前を入力してください。")
 
 # 予約者削除用のセレクトボックス
+reservations = load_data()  # 最新データを取得
+current_reservation = reservations[str(selected_location_key)]
 if current_reservation:
     remove_reservation = st.selectbox(f"削除する予約者を選んでください (場所 {location_choice})", options=[""] + current_reservation)
     if remove_reservation:
@@ -76,15 +79,9 @@ if current_reservation:
             save_data(reservations)
             st.success(f"{remove_reservation} さんが場所 {location_choice} の予約から削除されました。")
 
-# 予約者リストの表示
-st.subheader(f"{location_choice} の現在の予約者リスト")
-if current_reservation:
-    st.write(", ".join(current_reservation))
-else:
-    st.write("予約者はいません。")
-
 # すべての場所の予約状況を表形式で表示
 st.subheader("すべての場所の予約状況")
+reservations = load_data()  # 最新データを取得
 table_data = []
 
 for key in locations:
