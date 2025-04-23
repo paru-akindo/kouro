@@ -1,6 +1,6 @@
 import streamlit as st
 import requests
-import pandas as pd  # 追加
+import pandas as pd
 
 # JSONBin.io API設定
 API_KEY = "$2a$10$wkVzPCcsW64wR96r26OsI.HDd3ijLveJn6sxJoSjfzByIRyODPCHq"
@@ -46,14 +46,12 @@ st.title("最後どこ行く？")
 
 # 場所の選択
 location_choice = st.selectbox("予約する場所を選択してください", options=[locations[i] for i in range(1, 21)])
-
-# 選択された場所のキーを取得
 selected_location_key = [key for key, name in locations.items() if name == location_choice][0]
 
 # 予約者追加の入力欄
 new_reservation = st.text_input(f"場所 {location_choice} に予約する名前を入力")
 
-# 予約者追加ボタン
+# 予約ボタン
 if st.button(f"予約する - 場所 {location_choice}"):
     reservations = load_data()
     current_reservation = reservations[str(selected_location_key)]
@@ -68,7 +66,7 @@ if st.button(f"予約する - 場所 {location_choice}"):
     else:
         st.warning("名前を入力してください。")
 
-# 予約者削除用のセレクトボックス
+# 予約削除
 reservations = load_data()
 current_reservation = reservations[str(selected_location_key)]
 if current_reservation:
@@ -79,7 +77,11 @@ if current_reservation:
             save_data(reservations)
             st.success(f"{remove_reservation} さんが場所 {location_choice} の予約から削除されました。")
 
-# すべての場所の予約状況を表形式で表示
+# 表示設定：予約者一覧を短縮表示
+def shorten(text, length=30):
+    return text if len(text) <= length else text[:length] + "..."
+
+# 予約状況を表形式で表示
 st.subheader("すべての場所の予約状況")
 reservations = load_data()
 table_data = []
@@ -90,23 +92,42 @@ for key in locations:
     display_reservations = [
         "女神様" if name in {"絽呂", "ろろ", "ロロ"} else name for name in current_reservation
     ]
-    reservation_list = ", ".join(display_reservations) if display_reservations else "予約者はいません"
+    if display_reservations:
+        reservation_list = shorten(", ".join(display_reservations))
+    else:
+        reservation_list = "予約者なし"
     table_data.append([location_name, reservation_list])
 
-# DataFrameとスタイルで表示
 df = pd.DataFrame(table_data, columns=["場所", "予約者"])
 
+# 「予約者なし」行をピンクに
 def highlight_empty(val):
-    if val == "予約者はいません":
+    if val == "予約者なし":
         return "background-color: pink"
     return ""
 
 styled_df = df.style.applymap(highlight_empty, subset=["予約者"])
 
-st.dataframe(styled_df)
+# 横幅100%、高さ調整でスマホ対応
+st.dataframe(styled_df, height=1000, use_container_width=True)
 
-# すべての予約をリセットするボタン
+# リセットボタン
 if st.button("すべての予約をリセット"):
     reservations = initialize_data()
     save_data(reservations)
     st.success("すべての予約をリセットしました。")
+
+# スマホ用CSS（余白調整など）
+st.markdown("""
+    <style>
+    @media (max-width: 768px) {
+        .block-container {
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+        table {
+            font-size: 14px;
+        }
+    }
+    </style>
+""", unsafe_allow_html=True)
