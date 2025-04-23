@@ -1,9 +1,10 @@
 import streamlit as st
 import requests
+import pandas as pd  # 追加
 
 # JSONBin.io API設定
-API_KEY = "$2a$10$wkVzPCcsW64wR96r26OsI.HDd3ijLveJn6sxJoSjfzByIRyODPCHq"  # JSONBin.ioのAPIキー
-BIN_ID = "678e24e2ad19ca34f8f14fa2"  # 作成したBinのID
+API_KEY = "$2a$10$wkVzPCcsW64wR96r26OsI.HDd3ijLveJn6sxJoSjfzByIRyODPCHq"
+BIN_ID = "678e24e2ad19ca34f8f14fa2"
 BASE_URL = f"https://api.jsonbin.io/v3/b/{BIN_ID}"
 
 HEADERS = {
@@ -19,9 +20,9 @@ locations = {
     16: "セイロン", 17: "ペルシャ", 18: "大食国", 19: "ミスル", 20: "末羅国"
 }
 
-# 初期データの設定（空のリストを各場所に設定）
+# 初期データの設定
 def initialize_data():
-    return {str(i): [] for i in range(1, 21)}  # 1から20の場所に空のリストを設定
+    return {str(i): [] for i in range(1, 21)}
 
 # データを保存する関数
 def save_data(data):
@@ -54,7 +55,6 @@ new_reservation = st.text_input(f"場所 {location_choice} に予約する名前
 
 # 予約者追加ボタン
 if st.button(f"予約する - 場所 {location_choice}"):
-    # 最新の予約データを再取得
     reservations = load_data()
     current_reservation = reservations[str(selected_location_key)]
 
@@ -69,7 +69,7 @@ if st.button(f"予約する - 場所 {location_choice}"):
         st.warning("名前を入力してください。")
 
 # 予約者削除用のセレクトボックス
-reservations = load_data()  # 最新データを取得
+reservations = load_data()
 current_reservation = reservations[str(selected_location_key)]
 if current_reservation:
     remove_reservation = st.selectbox(f"削除する予約者を選んでください (場所 {location_choice})", options=[""] + current_reservation)
@@ -81,24 +81,32 @@ if current_reservation:
 
 # すべての場所の予約状況を表形式で表示
 st.subheader("すべての場所の予約状況")
-reservations = load_data()  # 最新データを取得
+reservations = load_data()
 table_data = []
 
 for key in locations:
     location_name = locations[key]
     current_reservation = reservations[str(key)]
-    # 「絽呂」「ろろ」「ロロ」を「女神様」に変換して表示
     display_reservations = [
         "女神様" if name in {"絽呂", "ろろ", "ロロ"} else name for name in current_reservation
     ]
-    reservation_list = ", ".join(current_reservation) if current_reservation else "予約者はいません"
+    reservation_list = ", ".join(display_reservations) if display_reservations else "予約者はいません"
     table_data.append([location_name, reservation_list])
 
-# 表形式で表示
-st.table(table_data)
+# DataFrameとスタイルで表示
+df = pd.DataFrame(table_data, columns=["場所", "予約者"])
+
+def highlight_empty(val):
+    if val == "予約者はいません":
+        return "background-color: pink"
+    return ""
+
+styled_df = df.style.applymap(highlight_empty, subset=["予約者"])
+
+st.dataframe(styled_df)
 
 # すべての予約をリセットするボタン
 if st.button("すべての予約をリセット"):
-    reservations = initialize_data()  # 初期化
+    reservations = initialize_data()
     save_data(reservations)
     st.success("すべての予約をリセットしました。")
