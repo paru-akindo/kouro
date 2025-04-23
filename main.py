@@ -99,6 +99,7 @@ for key in locations:
     table_data.append([location_name, reservation_list])
 
 df = pd.DataFrame(table_data, columns=["場所", "予約者"])
+df.index = df.index + 1
 
 # 「予約者なし」行をピンクに
 def highlight_empty(val):
