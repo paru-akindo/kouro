@@ -109,7 +109,7 @@ def highlight_empty(val):
 styled_df = df.style.applymap(highlight_empty, subset=["予約者"])
 
 # 横幅100%、高さ調整でスマホ対応
-st.dataframe(styled_df, height=800, use_container_width=True)
+st.dataframe(styled_df, height=750, use_container_width=True)
 
 # リセットボタン
 if st.button("すべての予約をリセット"):
